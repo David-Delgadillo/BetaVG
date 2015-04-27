@@ -12,17 +12,20 @@
  */
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -42,8 +45,13 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     // ********************** VARIABLES DEFINIDAS ******************************
     private final int iHEIGHT = 500; // Altura de la frame
     private final int iWIDTH = 800;  // Anchura de la frame
-    private final int iHEIGHTEXTRA = 35; // Altura extra de la frame
-    
+    private final int iHEIGHTEXTRA = 50; // Altura extra de la frame
+        // Duraciones de cada cuadro de animaciones para cada objeto
+    private final int iTIEMPOBOSS = 30; // Animacion de Boss
+    private final int iTIEMPOMOSCA = 20; // Animacion de mosca
+    private final int iTIEMPOHORMIGA = 20; // Animacion de hormiga
+    private final int iTIEMPOARANA = 20; // Animacion de arana
+    private final int iTIEMPOMATAMOSCAS = 20; // Animacion de matamoscas 
     
     // ********************** VARIABLES ****************************************
     int iMouseX; // Posicion en X del cursor
@@ -59,6 +67,7 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     boolean bSoltadoMouse; // Se solto el boton el mouse
     boolean bKeyRelEsq; // Se solto la tecla Esq
     boolean bKeyRelEnter; // Se solto la tecla Enter
+    private long lTiempoActual; // Contiene el tiempo que ha durado el juego
             
     // ********************** OBJETOS ******************************************
     ManoYMatamoscas manJugador1;
@@ -66,13 +75,30 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     private LinkedList<Hormiga> lklHormiga; // Lista de Hormigas
     private LinkedList<Mosquito> lklMosquito; // Lista de Mosquitos
     private LinkedList<Arana> lklArana; // Lista de Aranas
+    //private LinkedList<Mosca> lklMosca; // Lista de Moscas
     private Boton arrBotBoton[]; // Arreglo de botones normales
+    Cursor curCursor;    // Cursor
     
+    // Animaciones de objetos
+    private Animacion aniBoss1; // Anima el Boss del nivel 1
+    private Animacion aniBossGolpe1; // Anima el Boss del nivel 1 golpeado
+    private Animacion aniBoss2; // Anima el Boss del nivel 2
+    private Animacion aniBossGolpe2; // Anima el Boss del nivel 2 golpeado
+    private Animacion aniBoss3; // Anima el Boss del nivel 3
+    private Animacion aniBossGolpe3; // Anima el Boss del nivel 3 golpeado
+    private Animacion aniHormiga; // Anima a las hormigas
+    private Animacion aniHomrigaGolpe; // Anima a las hormigas golpeadas
+    private Animacion aniMosca; // Anima a las moscas
+    private Animacion aniMoscaGolpe; // Anima a las moscas golpeadas
+    private Animacion aniArana; // Anima a las aranas
+    private Animacion aniAranaGolpe; // Anima a las aranas golpeadas
+    private Animacion aniMataMoscaGolpe; // Anima el MataMoscas picado
     
     // ********************** GRAFICOS Y URLS **********************************
     private Image imaImagenApplet;   // Imagen a proyectar en Applet
     private Graphics graGraficaApplet;  // Objeto grafico de la Imagen
     
+    private URL urlImaCursor; // URL de la imagen del cursor
     private URL urlImaManoYMatamoscas; // URL de la imagen del matamoscas
     private URL urlImaHormiga; // URL de la imagen de las hormigas
     private URL urlImaMosquito; // URL de la imagen de los mosquitos
@@ -127,7 +153,7 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         iMouseX = 0; // Posicion en X del cursor
         iMouseY = 0; // Posicion en Y del cursor
         bClickJugador1 = false; // Se dio click
-        iPantallaActual = 1; // Pantalla que se encuentra actualmente
+        iPantallaActual = 2; // Pantalla que se encuentra actualmente
         iTipoJ1 = 1; // Tipo basico
         iVelocidadJ1 = 1; // Velocidad del J1
         iPowerJ1 = 1; // Power del J1.
@@ -178,6 +204,8 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         urlImaCuadroMultiFin = this.getClass().
                 getResource("cuadroMultiFin.png");
         urlImaBlanco = this.getClass().getResource("blanco.png");
+        urlImaCursor = this.getClass().getResource("corazon.png");
+        
         
         urlImaControl = new URL [4]; // Creo el arreglo
                 
@@ -252,6 +280,37 @@ public final class ProyectoFinal extends JFrame implements Runnable,
             urlImaBotonA[iI] = this.getClass().getResource("corazon.png");
             urlImaBotonB[iI] = this.getClass().getResource("corazon.png");
             urlImaBotonC[iI] = this.getClass().getResource("corazon.png");
+        }
+        
+        // Create a cursor.
+        curCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                Toolkit.getDefaultToolkit().getImage(urlImaCursor), 
+                new Point(0, 0), "Cursor");
+        
+        // Creo la animacion del Boss 1
+        aniBoss1 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss1 y se agregan a la
+            // animacion
+        for (int iI = 1; iI <= 30; iI ++) {
+            Image imaBoss1 = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("MayateFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniBoss1.sumaCuadro(imaBoss1, iTIEMPOBOSS);
+        }
+        
+        /* IR QUITANDO COMENTARIOS CONFORME SE VAN CREANDO LOS OBJETOS PARA 
+            PODER UTILIZARLOS. TAMBIEN CAMBIAR EL CONDICIONAL DEL CICLO SEGUN EL
+            NUMERO DE IMAGENES O FRAMES QUE CONFORMAN LA ANIMACION
+        // Creo la animacion del Boss 1 golpeado
+        */
+        aniBossGolpe1 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss1 golpeado y se 
+            // agregan a la animacion
+        for (int iI = 1; iI <= 30; iI ++) {
+            Image imaBoss1 = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("MayateFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniBoss1.sumaCuadro(imaBoss1, iTIEMPOBOSS);
         }
     }
     
@@ -349,18 +408,16 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 Toolkit.getDefaultToolkit().getImage(urlImaManoYMatamoscas));
         
         
-        for(int iI = 0; iI < 3; iI ++) {
+        for(int iI = 0; iI < 10; iI ++) {
             Mosquito mosAux;
-            mosAux = new Mosquito(150 + iI * 100, 150 + iI * 100, 40, 40, 1, 1, 
-                    3, Toolkit.getDefaultToolkit().getImage(urlImaMosquito));
+            mosAux = new Mosquito(10 + iI * 10, 10 + iI * 10, 40, 40, 1, 0, 3, 1000, 10, false, 1,1,
+                    Toolkit.getDefaultToolkit().getImage(urlImaMosquito));
             
             lklMosquito.add(mosAux);
         }
         
-        mosBoss1 = new Mosquito(450, 100, 150, 200, 1, 1, 
-                3, Toolkit.getDefaultToolkit().getImage(urlImaBoss1));
-
-        
+        mosBoss1 = new Mosquito(450, 100, 150, 200, 1, 0, 
+                3, 1000, 10, false, 1,1, Toolkit.getDefaultToolkit().getImage(urlImaBoss1));
         
         // Eventos del mouse y teclado
         addMouseListener(this);
@@ -388,6 +445,8 @@ public final class ProyectoFinal extends JFrame implements Runnable,
             Logger.getLogger(ProyectoFinal.class.getName()).
                     log(Level.SEVERE, null, ex);
         }
+        // Calcula el tiepo para las animaciones
+            lTiempoActual = System.currentTimeMillis();
         do {
             // Actualiza las posiciones de los objetos en la pantalla
             actualiza(); 
@@ -417,6 +476,13 @@ public final class ProyectoFinal extends JFrame implements Runnable,
      * 
      */
     public void actualiza(){
+        // Determina el tiempo que ha transcurrido desde el inicio de ejecucion
+        long lTiempoTranscurrido = System.currentTimeMillis() - lTiempoActual;
+        // Guardo el tiempo actual
+        lTiempoActual += lTiempoTranscurrido;
+        //Actualizo las distintas animaciones en el juego en cuanto al tiempo
+        aniBoss1.actualiza(lTiempoTranscurrido);
+        
         if (iPantallaActual == 1) {
             iPantallaActual = 2;
         }
@@ -424,6 +490,16 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         manJugador1.mueve(iMouseX, iMouseY, iWIDTH, iHEIGHT + iHEIGHTEXTRA, 
                 false);
         //stdOut.println(manJugador1.getFaltante());
+        
+        
+        if (!lklMosquito.isEmpty()) {
+            for (Mosquito lklEnemigo : lklMosquito) {
+                lklEnemigo.movimientoAleatorio(iWIDTH, iHEIGHT + iHEIGHTEXTRA);
+            }
+        }
+        
+        mosBoss1.movimientoAleatorio(iWIDTH, iHEIGHT + iHEIGHTEXTRA);
+        
         
         for(int iI = 0; iI < 66; iI ++) {
             if (arrBotBoton[iI].intersecta(iMouseX, iMouseY)) {
@@ -533,8 +609,12 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         try {
             paint1(graGraficaApplet);
         } catch (InterruptedException ex) {
-            Logger.getLogger(ProyectoFinal.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProyectoFinal.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
+        
+        // Set the blank cursor to the JFrame.
+        getContentPane().setCursor(curCursor);
 
         // Dibuja la imagen actualizada
         graGrafico.drawImage (imaImagenApplet, 0, 0, this);
@@ -757,8 +837,8 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 break;
             case 13: // Pantalla de juego
                 // Fondo blanco
-                graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
-                        getImage(urlImaBlanco), 0, 0, 1000, 1000, this);
+                //graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
+                //        getImage(urlImaBlanco), 0, 0, 1000, 1000, this);
                 
                 URL urlImaLives = this.getClass().getResource("lives.png");
                 graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
@@ -790,8 +870,11 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                     }
                 }
                 
-                mosBoss1.paint(graDibujo, this);
-                
+                //mosBoss1.paint(graDibujo, this);
+                // Se pintan las imagenes de animaciones con tama;o de objeto
+                graDibujo.drawImage(aniBoss1.getImagen(), mosBoss1.getX(),
+                        mosBoss1.getY(), mosBoss1.getAncho(),
+                        mosBoss1.getAlto(), this);
                 break;
             case 14: // Pantalla de Pausa
                 

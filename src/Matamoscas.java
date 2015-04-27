@@ -42,7 +42,7 @@ public class Matamoscas extends Base {
     /**
      * intersectaEnemigo
      * 
-     * Metodo que checa si la matamoscas a colicionado con algún objeto enemigo
+     * Metodo que checa si la matamoscas a colicionado con algun objeto enemigo
      * 
      * @param eneEnemigo es el <code>Object</code> con el que se quiere checar
      *         la colicion.
