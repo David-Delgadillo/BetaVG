@@ -306,12 +306,12 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         aniBossGolpe1 = new Animacion();
         // Se cargan las imagenes para la animacion del Boss1 golpeado y se 
             // agregan a la animacion
-        for (int iI = 1; iI <= 30; iI ++) {
-            Image imaBoss1 = Toolkit.getDefaultToolkit().getImage(
+        for (int iI = 1; iI <= 20; iI ++) {
+            Image imaBossGolpe1 = Toolkit.getDefaultToolkit().getImage(
                     this.getClass().getResource("MayateFrame" + iI + ".png"));
             // Agrega la imagen como cuadro a la animacion
-            aniBoss1.sumaCuadro(imaBoss1, iTIEMPOBOSS);
-        }
+            aniBossGolpe1.sumaCuadro(imaBossGolpe1, iTIEMPOBOSS);
+        } 
     }
     
     
