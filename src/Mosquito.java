@@ -13,6 +13,7 @@
  */
 
 import java.awt.Image;
+import java.awt.Point;
 
 public class Mosquito extends BaseEnemigo {
     // *************************** CONSTRUCTOR *********************************    
@@ -32,16 +33,14 @@ public class Mosquito extends BaseEnemigo {
      * @param iFrecuencia es la <code>Frecuencia</code> del objeto.
      * @param iEntrada es la <code>Entrada</code> del objeto.
      * @param bSale es la <code>Salida</code> del objeto.
-     * @param iDireccionX es la <code>Direccion X</code> del objeto.
-     * @param iDireccionY es la <code>Direccion Y</code> del objeto.
      * @param imaImagen es la <code>imagen</code> del objeto.
-     * @param bGolpeado es el <code>booleano</code> que indica si fue golpeado
+     * 
      */
     public Mosquito(int iX, int iY , int iAncho, int iAlto, int iVida,
             int iTiempo, int iVelocidad, int iFrecuencia, int iEntrada, 
-            boolean bSale, int iDireccionX, int iDireccionY, Image imaImagen) {
+            boolean bSale, Image imaImagen) {
         super(iX, iY, iAncho, iAlto, iVida, iTiempo, iVelocidad, iFrecuencia, 
-                iEntrada, bSale, iDireccionX, iDireccionY, imaImagen);
+                iEntrada, bSale, imaImagen);
     }
     // *************************************************************************
     
@@ -49,75 +48,6 @@ public class Mosquito extends BaseEnemigo {
     
     
     
-    // ************************** METODOS **************************************
-    /*
-     * movimiento
-     * 
-     * Metodo que actualiza la posicion del objeto
-     * 
-     * @param iWidth es el <code>Ancho</code> del objeto.
-     * @param iHeight es el <code>Alto</code> del objeto.
-     * 
-     */
-    public void movimiento(int iWidth, int iHeight) {
-        // Genera valores aleatorios para movimiento brusco
-        int iAuxX = (int) (Math.random() * 12.0d - 6.0d);
-        int iAuxY = (int) (Math.random() * 12.0d - 6.0d);
-        
-        // Revis que no se salga de la pantalla
-        if (this.getX() + iAuxX + this.getAncho() >= iWidth || 
-                this.getX() + iAuxX <= 0) {
-            iAuxX = - iAuxX;
-        }
-        if (this.getY() + iAuxY + this.getAlto() >= iHeight || 
-                this.getY() + iAuxY <= 0) {
-            iAuxY = - iAuxY;
-        }
-        
-        // Asigna nueva posicion
-        this.setX(this.getX() + iAuxX);
-        this.setY(this.getY() + iAuxY);
-    }
-    
-    
-    /*
-     * movimientoAleatorio
-     * 
-     * Actualiza la posicion del objeto
-     * 
-     * @param iWidth es el <code>Ancho</code> del objeto.
-     * @param iHeight es el <code>Alto</code> del objeto.
-     * 
-     */
-    public void movimientoAleatorio(int iW, int iH) {
-        this.setTiempo(this.getTiempo() + 20); // Actualiza el tiempo
-        
-        // Para cambiar la direccion del movimiento
-        if (this.getTiempo() == this.getFrecuencia()) {
-            this.setTiempo(0); // Actualiza el tiempo
-            
-            // Modifica la direccion del movimiento
-            double dTheta = 2.0d * Math.PI * Math.random();
-            int iAuxX = (int) (Math.cos(dTheta) * this.getVelocidad());
-            int iAuxY = (int) (Math.sin(dTheta) * this.getVelocidad());
-            this.setDireccion(iAuxX, iAuxY);
-        }
-        
-        // Que no se salga de la pantalla
-        if (this.getX() + this.getDireccionX() < 0 || 
-                this.getX() + this.getAncho() + this.getDireccionX() > iW) {
-           this.setDireccionX(- this.getDireccionX());
-        }
-        
-        if (this.getY() +  this.getDireccionY() < 0 || 
-                this.getY() + this.getAlto() + this.getDireccionY() > iH) {
-           this.setDireccionY(- this.getDireccionY());
-        }
-        
-        // Actualiza el movimiento
-        this.setX(this.getX() + this.getDireccionX()); 
-        this.setY(this.getY() + this.getDireccionY());
-    }
-    
+    // ************************** METODOS **************************************    
     // *************************************************************************
 }

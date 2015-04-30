@@ -39,9 +39,9 @@ public class Arana extends BaseEnemigo {
      */
     public Arana(int iX, int iY , int iAncho, int iAlto, int iVida,
             int iTiempo, int iVelocidad, int iFrecuencia, int iEntrada, 
-            boolean bSale, int iDireccionX, int iDireccionY, Image imaImagen) {
+            boolean bSale, Image imaImagen) {
         super(iX, iY, iAncho, iAlto, iVida, iTiempo, iVelocidad, iFrecuencia, 
-                iEntrada, bSale, iDireccionX, iDireccionY, imaImagen);
+                iEntrada, bSale, imaImagen);
     }
     // *************************************************************************
     
@@ -50,8 +50,5 @@ public class Arana extends BaseEnemigo {
     
     
     // ************************** METODOS **************************************
-    public void movimiento() {
-
-    }
     // *************************************************************************
 }

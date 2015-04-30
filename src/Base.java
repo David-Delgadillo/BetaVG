@@ -175,6 +175,21 @@ public class Base {
     
     
     /**
+     * setXY
+     * 
+     * Metodo modificador usado para cambiar la posicion en x, y del objeto 
+     * 
+     * @param iX es la <code>posicion en x</code> del objeto.
+     * @param iY es la <code>posicion en y</code> del objeto.
+     * 
+     */
+    public void setXY(int iX, int iY) {
+        this.iX = iX;
+        this.iY = iY;
+    }
+    
+    
+    /**
      * setImagen
      * 
      * Metodo modificador usado para cambiar el icono de imagen del objeto

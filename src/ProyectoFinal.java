@@ -8,7 +8,7 @@
  * @author Jose Gonzalez    A01280106
  * 
  * @version 1.0
- * @date 08/ Abril/ 2015
+ * @date 29/ Abril/ 2015
  */
 
 import java.awt.Color;
@@ -48,10 +48,10 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     private final int iHEIGHTEXTRA = 50; // Altura extra de la frame
         // Duraciones de cada cuadro de animaciones para cada objeto
     private final int iTIEMPOBOSS = 30; // Animacion de Boss
-    private final int iTIEMPOMOSCA = 20; // Animacion de mosca
-    private final int iTIEMPOHORMIGA = 20; // Animacion de hormiga
-    private final int iTIEMPOARANA = 20; // Animacion de arana
-    private final int iTIEMPOMATAMOSCAS = 20; // Animacion de matamoscas 
+    private final int iTIEMPOMOSCA = 100; // Animacion de mosca
+    private final int iTIEMPOHORMIGA = 70; // Animacion de hormiga
+    private final int iTIEMPOARANA = 50; // Animacion de arana
+    private final int iTIEMPOMATAMOSCAS = 70; // Animacion de matamoscas 
     
     // ********************** VARIABLES ****************************************
     int iMouseX; // Posicion en X del cursor
@@ -60,14 +60,31 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     int iTipoJ1; // Tipo de matamoscas J1
     int iVelocidadJ1; // Velocidad del J1
     int iPowerJ1; // Power del J1.
+    int iVidasJ1; // Vidas del J1.
+    int iPuntosJ1; // Puntaje del J1
+    int iBugs; // Cantidad de bugs que faltan
+    int iNivel; // Nivel inicial
+    long lTiempoEnPartida; // Tiempo que va en la partida
     boolean bClickJugador1; // Se dio click
     boolean bPausa; // Pausa o no
     boolean bClick; // Click
+    boolean bIniciaJuego; // Si ya inicio el juego
     boolean bPresionadoMouse; // Se esta presionando el boton
     boolean bSoltadoMouse; // Se solto el boton el mouse
+    boolean bBossTime; // Hora del boss
     boolean bKeyRelEsq; // Se solto la tecla Esq
     boolean bKeyRelEnter; // Se solto la tecla Enter
+    boolean bTerminoNivel; // Termina el nivel
     private long lTiempoActual; // Contiene el tiempo que ha durado el juego
+    long lTiempoMAtacando; // Controla el tiempo de animacion golpe de jugador
+    long lTiempoBAtacando; // Controla el tiempo de animacion golpe del boss
+    long lTiempoBossFlash; // Controla el tiempo de animacion mostrada
+    long lTiempoMataMoscaFlash; // Controla el tiempo de animacion mostrada
+    boolean bBGolpeando; // Indica que el Boss esta golpeando
+    boolean bMMGolpeando; // Indica que el Matamoscas esta golpeando
+    boolean bBossAtacado; // Indica si se le pego al boss
+    boolean bMataMoscaAtacado; // Indica si un insecto toco la mano
+    private String strUserName; // Contiene el nombre del usuario
             
     // ********************** OBJETOS ******************************************
     ManoYMatamoscas manJugador1;
@@ -75,24 +92,40 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     private LinkedList<Hormiga> lklHormiga; // Lista de Hormigas
     private LinkedList<Mosquito> lklMosquito; // Lista de Mosquitos
     private LinkedList<Arana> lklArana; // Lista de Aranas
+    private LinkedList<Golpe> lklMosquitoGolpeado;
+    private LinkedList<Proyectil> lklProyectil;
     //private LinkedList<Mosca> lklMosca; // Lista de Moscas
     private Boton arrBotBoton[]; // Arreglo de botones normales
-    Cursor curCursor;    // Cursor
+    Cursor curCursor;           // Cursor
+    Cursor curCursorBlanco;    // Cursor en blanco
+    Mosquito mosAux;            // Mosquito auxiliar para tener valores default
     
     // Animaciones de objetos
     private Animacion aniBoss1; // Anima el Boss del nivel 1
     private Animacion aniBossGolpe1; // Anima el Boss del nivel 1 golpeado
+    private Animacion aniBossAttack1; // Anima el ataque del boss nivel 1
     private Animacion aniBoss2; // Anima el Boss del nivel 2
     private Animacion aniBossGolpe2; // Anima el Boss del nivel 2 golpeado
     private Animacion aniBoss3; // Anima el Boss del nivel 3
     private Animacion aniBossGolpe3; // Anima el Boss del nivel 3 golpeado
-    private Animacion aniHormiga; // Anima a las hormigas
-    private Animacion aniHomrigaGolpe; // Anima a las hormigas golpeadas
-    private Animacion aniMosca; // Anima a las moscas
-    private Animacion aniMoscaGolpe; // Anima a las moscas golpeadas
+    private Animacion aniHormigaR; // Anima a las hormigas
+    private Animacion aniHormigaL; // Hormiga hacia la izquierda
+    private Animacion aniHormigaGolpeR; // Anima a las hormigas golpeadas
+    private Animacion aniHormigaGolpeL; // Hormiga hacia la izquierda
+    private Animacion aniMoscaL; // Anima a las moscas
+    private Animacion aniMoscaR; // Anima a las moscas hacia la derecha
+    private Animacion aniMoscaGolpeL; // Anima a las moscas golpeadas
+    private Animacion aniMoscaGolpeR; // Mosca hacia la derecha
+    private Animacion aniMosquitoR; // Anima a los mosquitos
+    private Animacion aniMosquitoL; // Mosquitos animados hacia izquierda
+    private Animacion aniMosquitoGolpeR; // Anima a los mosquitos golpeados
+    private Animacion aniMosquitoGolpeL; // Mosquitos golpeados hacia izquierda
     private Animacion aniArana; // Anima a las aranas
     private Animacion aniAranaGolpe; // Anima a las aranas golpeadas
-    private Animacion aniMataMoscaGolpe; // Anima el MataMoscas picado
+    private Animacion aniMataMoscaGolpeL; // Anima MataMoscas pegando left hand
+    private Animacion aniMataMoscaGolpeR; // Anima Matamoscas pegando right hand
+    private Animacion aniMataMoscaReactL; // Anima reaccion de mano izq a golpe
+    private Animacion aniMataMoscaReactR; // Anima reaccion de mano der a golpe
     
     // ********************** GRAFICOS Y URLS **********************************
     private Image imaImagenApplet;   // Imagen a proyectar en Applet
@@ -116,7 +149,10 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     private URL urlImaCuadroGanador; // URL de la imagen del cuadro de ganador
     private URL urlImaCuadroPerdedor; // URL de la imagen del cuadro de perdedor
     private URL urlImaCuadroMultiFin; // URL de la imagen del cuadro mulijugador
+    private URL urlImaLives; // URL de la imagen para las vidas
+    private URL urlImaAnuncioInicio; // URL de la imagen con instruccion inicial
     private URL urlImaBlanco; // URL de la imagen de fondo blanco
+    private URL urlImaProyectil1; // URL de la imagen del proyectil 1
     private URL urlImaControl[]; // URLs de las imagenes de los controles
     private URL urlImaBanner[]; // URLs de las imagenes del baner
     private URL urlImaBotonA[]; // URLs de las imagenes de los botones
@@ -124,6 +160,38 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     private URL urlImaBotonC[]; // URLs de las imagenes de los botones presion
     private URL urlImaDialogo[]; // URLs de los dialogos del senor
     // *************************************************************************
+    /**
+     * class Golpe
+     * 
+     * Clase utilizada para almacenar la ubicasion y las caracteristicas de una
+     * mosca golpeada
+     * 
+     */
+    public class Golpe{
+        int iPosX;  // Posicion del golpe en X
+        int iPosY;  // Posicion del golpe en Y
+        int iPasadas;   // Cantidad de pasadas que faltan
+        boolean bDireccion; // La direccion a la que voltea
+        
+        /**
+        * Golpe
+        * 
+        * Metodo constructor usado para crear el objeto Golpe
+        * 
+        * @param iPosX es la <code>Posicion en x</code> del objeto.
+        * @param iPosY es la <code>Posicion en y</code> del objeto.
+        * @param iPasadas es las <code>Pasadas</code> del objeto.
+        * @param bDireccion es el <code>Direccion</code> del objeto.
+        * 
+        */
+        public Golpe(int iPosX, int iPosY, int iPasadas, boolean bDireccion){
+            this.iPosX = iPosX;
+            this.iPosY = iPosY;
+            this.iPasadas = iPasadas;
+            this.bDireccion = bDireccion;
+        }
+    }
+    
     
     /**
      * main
@@ -150,20 +218,34 @@ public final class ProyectoFinal extends JFrame implements Runnable,
      * 
      */
     public void inicializador() {
-        iMouseX = 0; // Posicion en X del cursor
-        iMouseY = 0; // Posicion en Y del cursor
         bClickJugador1 = false; // Se dio click
-        iPantallaActual = 2; // Pantalla que se encuentra actualmente
         iTipoJ1 = 1; // Tipo basico
         iVelocidadJ1 = 1; // Velocidad del J1
         iPowerJ1 = 1; // Power del J1.
+        iPuntosJ1 = 0; // Puntaje del J1
+        iVidasJ1 = 5; // Vidas del jugador
+        iNivel = 1; // Nivel del juego
+        iBugs = 30; // Cantidad de Bugs
+        lTiempoEnPartida = 0; // Tiempo que va en partida
+        bBossTime = false; // Hora del boss
         bPausa = false; // Pausa o no
         bClick = false ; // Click
+        bIniciaJuego = false; // Si ya inicio el juego
         bPresionadoMouse = false; // Se esta presionando el boton
         bSoltadoMouse = false; // Se solto el boton el mou
         bClickJugador1 = false; // El jugador 1 hizo un click
         bKeyRelEsq = false; // Se solo la tecla ESQ
         bKeyRelEnter = false; // Se solto la tecla Enter
+        bTerminoNivel = false; // Se termino el nivel
+        lTiempoMAtacando = 0; // Controla el tiempo animacion golpe de jugador
+        lTiempoBAtacando = 0; // Controla el tiempo de animacion golpe del boss
+        lTiempoBossFlash = 0; // Controla el tiempo de animacion de flashazo
+        lTiempoMataMoscaFlash = 0; // Controla el tiempo de animacion flashazo
+        bBGolpeando = false; // Indica que el Boss esta golpeando
+        bMMGolpeando = false; // Indica que el Matamoscas esta golpeando
+        bBossAtacado = false; // Indica que se golpeo al boss
+        bMataMoscaAtacado = false; // Indica que se toco a la mano
+        strUserName = ""; // Inicializa en vacio
     }
     
     
@@ -174,17 +256,19 @@ public final class ProyectoFinal extends JFrame implements Runnable,
      * 
      */
     public void creador() {
+        iPantallaActual = 1; // Pantalla que se encuentra actualmente
         // Creo todas las listas
         lklHormiga = new LinkedList();
         lklMosquito = new LinkedList(); 
         lklArana = new LinkedList(); 
-        
+        lklMosquitoGolpeado = new LinkedList();
+        lklProyectil = new LinkedList();
         
         arrBotBoton = new Boton [100]; // Creo el arreglo de los botones
         
         // Creo todos los URLs
         urlImaManoYMatamoscas = this.getClass().
-                getResource("manoYMatamoscas.png"); 
+                getResource("RFrame1.png"); 
         urlImaHormiga = this.getClass().getResource("corazon.png");
         urlImaMosquito = this.getClass().getResource("mosquito.gif");
         urlImaArana = this.getClass().getResource("corazon.png");
@@ -193,6 +277,8 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         urlImaFondo = this.getClass().getResource("fondo.png");
         urlImaLogo1 = this.getClass().getResource("logo1.png");
         urlImaLogo2 = this.getClass().getResource("logo2.png");
+        urlImaLives = this.getClass().getResource("life.png");
+        urlImaAnuncioInicio = this.getClass().getResource("StartGame.png");
         urlImaPressAnyKey = this.getClass().getResource("pressAnyKey.png");
         urlImaCreditos = this.getClass().getResource("creditos.png");
         urlImaTabla = this.getClass().getResource("tabla.png");
@@ -204,7 +290,8 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         urlImaCuadroMultiFin = this.getClass().
                 getResource("cuadroMultiFin.png");
         urlImaBlanco = this.getClass().getResource("blanco.png");
-        urlImaCursor = this.getClass().getResource("corazon.png");
+        urlImaCursor = this.getClass().getResource("cursor.png");
+        urlImaProyectil1 = this.getClass().getResource("proyectil1.png");
         
         
         urlImaControl = new URL [4]; // Creo el arreglo
@@ -282,12 +369,26 @@ public final class ProyectoFinal extends JFrame implements Runnable,
             urlImaBotonC[iI] = this.getClass().getResource("corazon.png");
         }
         
+        mosAux = new Mosquito(-99, -99, 40, 40, 1, 0, 3, 1000, 
+                            0, false, Toolkit.getDefaultToolkit().
+                            getImage(urlImaMosquito));
+        
         // Create a cursor.
         curCursor = Toolkit.getDefaultToolkit().createCustomCursor(
                 Toolkit.getDefaultToolkit().getImage(urlImaCursor), 
                 new Point(0, 0), "Cursor");
         
-        // Creo la animacion del Boss 1
+        Image image = Toolkit.getDefaultToolkit().
+                getImage("icons/handwriting.gif");
+        curCursorBlanco = Toolkit.getDefaultToolkit().createCustomCursor(image ,
+                new Point(0,0), "img");
+        
+        /*
+            ----------------------------------------------------------------
+            --------------Cargar imagenes a las animaciones-----------------
+            ----------------------------------------------------------------
+        */
+        // Creo la animacion del Boss 1-------------------------------------
         aniBoss1 = new Animacion();
         // Se cargan las imagenes para la animacion del Boss1 y se agregan a la
             // animacion
@@ -298,20 +399,296 @@ public final class ProyectoFinal extends JFrame implements Runnable,
             aniBoss1.sumaCuadro(imaBoss1, iTIEMPOBOSS);
         }
         
+        // Creo la animacion del Boss 1 golpeado----------------------------
+        aniBossGolpe1 = new Animacion();
+        // Se carga la primera imagen del boss golpeado
+        Image imaBossGolpe1 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("MayateFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniBossGolpe1.sumaCuadro(imaBossGolpe1, 100);
+        // Se carga la segunda imagen del boss golpeado
+        imaBossGolpe1 = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("MayateInv.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniBossGolpe1.sumaCuadro(imaBossGolpe1, 100);
+        
+        // Creo la animacion del Boss 1 atacando ----------------------------
+        aniBossAttack1 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss1 y se agregan a la
+            // animacion
+        for (int iI = 1; iI <= 6; iI ++) {
+            Image imaBossAttack1 = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("MayateHitFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniBossAttack1.sumaCuadro(imaBossAttack1, 130);
+        }
+        
         /* IR QUITANDO COMENTARIOS CONFORME SE VAN CREANDO LOS OBJETOS PARA 
             PODER UTILIZARLOS. TAMBIEN CAMBIAR EL CONDICIONAL DEL CICLO SEGUN EL
             NUMERO DE IMAGENES O FRAMES QUE CONFORMAN LA ANIMACION
-        // Creo la animacion del Boss 1 golpeado
-        */
-        aniBossGolpe1 = new Animacion();
-        // Se cargan las imagenes para la animacion del Boss1 golpeado y se 
-            // agregan a la animacion
-        for (int iI = 1; iI <= 20; iI ++) {
-            Image imaBossGolpe1 = Toolkit.getDefaultToolkit().getImage(
+        // Creo la animacion del Boss 2-------------------------------------
+        aniBoss2 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss1 y se agregan a la
+            // animacion
+        for (int iI = 1; iI <= 30; iI ++) {
+            Image imaBoss2 = Toolkit.getDefaultToolkit().getImage(
                     this.getClass().getResource("MayateFrame" + iI + ".png"));
             // Agrega la imagen como cuadro a la animacion
-            aniBossGolpe1.sumaCuadro(imaBossGolpe1, iTIEMPOBOSS);
-        } 
+            aniBoss2.sumaCuadro(imaBoss2, iTIEMPOBOSS);
+        }
+        
+        // Creo la animacion del Boss 2 golpeado----------------------------
+        aniBossGolpe2 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss2 golpeado y se 
+            // agregan a la animacion
+        for (int iI = 1; iI <= 20; iI ++) {
+            Image imaBossGolpe2 = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("MayateFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniBossGolpe2.sumaCuadro(imaBossGolpe2, iTIEMPOBOSS);
+        }
+        
+        // Creo la animacion del Boss 3--------------------------------------
+        aniBoss3 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss1 y se agregan a la
+            // animacion
+        for (int iI = 1; iI <= 30; iI ++) {
+            Image imaBoss3 = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("MayateFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniBoss3.sumaCuadro(imaBoss3, iTIEMPOBOSS);
+        }
+        
+        // Creo la animacion del Boss 3 golpeado-----------------------------
+        aniBossGolpe3 = new Animacion();
+        // Se cargan las imagenes para la animacion del Boss3 golpeado y se 
+            // agregan a la animacion
+        for (int iI = 1; iI <= 20; iI ++) {
+            Image imaBossGolpe3 = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("MayateFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniBossGolpe3.sumaCuadro(imaBossGolpe3, iTIEMPOBOSS);
+        }
+        */
+        // Creo la animacion de la hormiga-----------------------------------
+        aniHormigaR = new Animacion();
+        // Se cargan las imagenes para la animacion de la hormiga y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 9; iI ++) {
+            Image imaHormigaR = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("AntIzqFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniHormigaR.sumaCuadro(imaHormigaR, iTIEMPOHORMIGA);
+        }
+        
+        // Creo la animacion de la hormiga golpeada--------------------------
+        aniHormigaGolpeR = new Animacion();
+        // Se carga la primera imagen de la hormiga golpeada
+        Image imaHormigaGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("AntIzqFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniHormigaGolpeR.sumaCuadro(imaHormigaGolpeR, 70);
+        // Se carga la segunda imagen de la hormiga golpeada
+        imaHormigaGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("AntInvL.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniHormigaGolpeR.sumaCuadro(imaHormigaGolpeR, 70);
+        
+        // Animacion de la hormiga hacia izquierda---------------------------
+        aniHormigaL = new Animacion();
+        // Se cargan las imagenes para la animacion de la hormiga y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 9; iI ++) {
+            Image imaHormigaL = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("AntrightFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniHormigaL.sumaCuadro(imaHormigaL, iTIEMPOHORMIGA);
+        }
+        
+        // Animacion de la hormiga golpeada hacia la izquierda---------------
+        aniHormigaGolpeL = new Animacion();
+        // Se carga la primera imagen de la hormiga golpeada
+        Image imaHormigaGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("AntrightFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniHormigaGolpeL.sumaCuadro(imaHormigaGolpeL, 70);
+        // Se carga la segunda imagen de la hormiga golpeada
+        imaHormigaGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("AntInvR.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniHormigaGolpeL.sumaCuadro(imaHormigaGolpeL, 70);
+        
+        // Creo la animacion de la mosca-------------------------------------
+        aniMoscaL = new Animacion();
+        // Se cargan las imagenes para la animacion de la mosca y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 6; iI ++) {
+            Image imaMoscaL = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("FlyrightFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniMoscaL.sumaCuadro(imaMoscaL, iTIEMPOMOSCA);
+        }
+        
+        // Creo la animacion de la mosca golpeada---------------------------
+        aniMoscaGolpeL = new Animacion();
+        // Se carga la primera imagen de la mosca golpeada
+        Image imaMoscaGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("Fly1R.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMoscaGolpeL.sumaCuadro(imaMoscaGolpeL, iTIEMPOMOSCA);
+        // Se carga la segunda imagen de la mosca golpeada
+        imaMoscaGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("FlyInvR.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMoscaGolpeL.sumaCuadro(imaMoscaGolpeL, iTIEMPOMOSCA);
+        
+        // Creo la animacion de la mosca hacia derecha-----------------------
+        aniMoscaR = new Animacion();
+        // Se cargan las imagenes para la animacion de la mosca y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 6; iI ++) {
+            Image imaMoscaR = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("FlyIzqFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniMoscaR.sumaCuadro(imaMoscaR, iTIEMPOMOSCA);
+        }
+        
+        // Creo la animacion de la mosca golpeada a izquierda-----------------
+        aniMoscaGolpeR = new Animacion();
+        // Se carga la primera imagen de la mosca golpeada
+        Image imaMoscaGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("FlyIzqFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMoscaGolpeR.sumaCuadro(imaMoscaGolpeR, iTIEMPOMOSCA);
+        // Se carga la segunda imagen de la mosca golpeada
+        imaMoscaGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("FlyInvL.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMoscaGolpeR.sumaCuadro(imaMoscaGolpeR, iTIEMPOMOSCA);
+        
+        // Creo la animacion del mosquito-----------------------------------
+        aniMosquitoR = new Animacion();
+        // Se cargan las imagenes para la animacion del mosquito y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 8; iI ++) {
+            Image imaMosquitoR = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("Mosquitoizqframe" + iI +
+                    ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniMosquitoR.sumaCuadro(imaMosquitoR, iTIEMPOMOSCA);
+        }
+        
+        // Creo la animacion de la mosquita golpeada------------------------
+        aniMosquitoGolpeR = new Animacion();
+        // Se carga la primera imagen de la mosquita golpeada
+        Image imaMosquitoGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("Mosquitoizqframe1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMosquitoGolpeR.sumaCuadro(imaMosquitoGolpeR, iTIEMPOMOSCA);
+        // Se carga la segunda imagen de la mosquita golpeada
+        imaMosquitoGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("MosquitoInvL.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMosquitoGolpeR.sumaCuadro(imaMosquitoGolpeR, iTIEMPOMOSCA);
+        
+        // Creo la animacion del mosquito a izquierda -----------------------
+        aniMosquitoL = new Animacion();
+        // Se cargan las imagenes para la animacion del mosquito y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 8; iI ++) {
+            Image imaMosquitoL = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("Mosquitoirightframe" + iI +
+                    ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniMosquitoL.sumaCuadro(imaMosquitoL, iTIEMPOMOSCA);
+        }
+        
+        // Creo la animacion de la mosquita golpeada------------------------
+        aniMosquitoGolpeL = new Animacion();
+        // Se carga la primera imagen de la mosquita golpeada
+        Image imaMosquitoGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("Mosquitoirightframe1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMosquitoGolpeL.sumaCuadro(imaMosquitoGolpeL, iTIEMPOMOSCA);
+        // Se carga la segunda imagen de la mosquita golpeada
+        imaMosquitoGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("MosquitoInvR.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMosquitoGolpeL.sumaCuadro(imaMosquitoGolpeL, iTIEMPOMOSCA);
+        
+        // Creo la animacion de la arana------------------------------------
+        aniArana = new Animacion();
+        // Se cargan las imagenes para la animacion de la arana y se agregan
+            // a la animacion
+        for (int iI = 1; iI <= 10; iI ++) {
+            Image imaHormigaR = Toolkit.getDefaultToolkit().getImage(
+                    this.getClass().getResource("SpiderFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniArana.sumaCuadro(imaHormigaR, iTIEMPOARANA);
+        }
+        
+        // Creo la animacion de la arana golpeada--------------------------
+        aniAranaGolpe = new Animacion();
+        // Se carga la primera imagen de la arana golpeada
+        Image imaAranaGolpe = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("SpiderFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniAranaGolpe.sumaCuadro(imaAranaGolpe, 70);
+        // Se carga la segunda imagen de la arana golpeada
+        imaAranaGolpe = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("SpiderInv.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniAranaGolpe.sumaCuadro(imaAranaGolpe, 70);
+        
+        // Creo la animacion del golpe del matamoscas left hand-----------------
+        aniMataMoscaGolpeL = new Animacion();
+        // Se cargan las imagenes para la animacion del matamoscas y se agregan
+            // a la animacion
+        for (int iI = 0; iI <= 2; iI ++) {
+            Image imaMataMoscaGolpeL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("LFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniMataMoscaGolpeL.sumaCuadro(imaMataMoscaGolpeL, 
+                                                            iTIEMPOMATAMOSCAS);
+        }
+        
+        // Creo la animacion del golpe del matamoscas right hand----------------
+        aniMataMoscaGolpeR = new Animacion();
+        // Se cargan las imagenes para la animacion del matamoscas y se agregan
+            // a la animacion
+        for (int iI = 0; iI <= 2; iI ++) {
+            Image imaMataMoscaGolpeR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("RFrame" + iI + ".png"));
+            // Agrega la imagen como cuadro a la animacion
+            aniMataMoscaGolpeR.sumaCuadro(imaMataMoscaGolpeR, 
+                                                            iTIEMPOMATAMOSCAS);
+        }
+        
+        // Creo la animacion de reaccion de mano izq al ser tocado-------------
+        aniMataMoscaReactL = new Animacion();
+        // Se carga la primera imagen de la arana golpeada
+        Image imaMataMoscaReactL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("LFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMataMoscaReactL.sumaCuadro(imaMataMoscaReactL, 70);
+        // Se carga la segunda imagen de la arana golpeada
+        imaMataMoscaReactL = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("LFrameInv.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMataMoscaReactL.sumaCuadro(imaMataMoscaReactL, 70);
+        
+        // Creo la animacion de reaccion de mano der al ser tocado-------------
+        aniMataMoscaReactR = new Animacion();
+        // Se carga la primera imagen de la arana golpeada
+        Image imaMataMoscaReactR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("RFrame1.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMataMoscaReactR.sumaCuadro(imaMataMoscaReactR, 70);
+        // Se carga la segunda imagen de la arana golpeada
+        imaMataMoscaReactR = Toolkit.getDefaultToolkit().getImage(
+                this.getClass().getResource("RFrameInv.png"));
+        // Agrega la imagen como cuadro a la animacion
+        aniMataMoscaReactR.sumaCuadro(imaMataMoscaReactR, 70);
     }
     
     
@@ -326,6 +703,8 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         lklHormiga.clear();
         lklMosquito.clear();
         lklArana.clear();
+        lklMosquitoGolpeado.clear();
+        lklProyectil.clear();
     }
     
     
@@ -381,11 +760,72 @@ public final class ProyectoFinal extends JFrame implements Runnable,
     public void generadorHormigas() {
         
     }
+    */
+    
     
     public void generadorMosquitos() {
+        // Que no haya tantos mosquitos en la pantalla
+        if (lklMosquito.size() < 15 && iBugs - lklMosquito.size() > 0) {
+            int iDonde = (int) (Math.random() * 3.0d + 1.0d);
+            
+            switch (iDonde) {   // De donde saldran
+                case 1: // Arriba
+                    //  Creo el mosquito
+                    Mosquito mosAux1 = new Mosquito(-99, -99, 40, 40, 1, 0, 3, 
+                            1000, iDonde, false, Toolkit.getDefaultToolkit().
+                            getImage(urlImaMosquito));
+                    
+                    // Asigno las ubicasiones
+                    mosAux1.setX((int) (Math.random() * (iWIDTH - 
+                            mosAux1.getAncho() - 10.0d) + 3.0d));
+                    mosAux1.setY(- (int) (Math.random() * 20 + 
+                            mosAux1.getAncho()));
+                    
+                    lklMosquito.add(mosAux1); // Guardo en la lista
+                    break;
+                case 2: // Izquierda
+                    //  Creo el mosquito
+                    Mosquito mosAux2 = new Mosquito(-99, -99, 40, 40, 1, 0, 3, 
+                            1000, iDonde, false, Toolkit.getDefaultToolkit().
+                            getImage(urlImaMosquito));
+                    
+                    // Asigno las ubicasiones
+                    mosAux2.setX(- (int) (Math.random() * 30.0d + 
+                            (mosAux2.getAncho() + 5.0d)));
+                    mosAux2.setY((int) (Math.random() * (iHEIGHT + 
+                            iHEIGHTEXTRA - 40.0d - mosAux2.getAlto()) + 25.0d));
+                    
+                    lklMosquito.add(mosAux2); // Guardo en la lista
+                    break;
+                case 3: // Derecha
+                    //  Creo el mosquito
+                    Mosquito mosAux3 = new Mosquito(-99, -99, 40, 40, 1, 0, 3, 
+                            1000, iDonde, false, Toolkit.getDefaultToolkit().
+                            getImage(urlImaMosquito));
+                    
+                    // Asigno las ubicasiones
+                    mosAux3.setX((int) (Math.random() * 30.0d + 
+                            (mosAux3.getAncho() + iWIDTH)));
+                    mosAux3.setY((int) (Math.random() * (iHEIGHT + 
+                            iHEIGHTEXTRA - 40.0d - mosAux3.getAlto()) + 25.0d));
+                    
+                    lklMosquito.add(mosAux3); // Guardo en la lista
+                    break;
+            }
+        }
         
+        // Para sacar al Boss
+        if (iBugs == 0 && ! bBossTime) {
+            bBossTime = true; // Inicia la pela con el boss
+            
+            // Creo al boss y asigno posicion
+            mosBoss1 = new Mosquito(-99, -90, 280, 200, 100, 0, 3, 1000, 1, 
+                    false, Toolkit.getDefaultToolkit().getImage(urlImaBoss1));
+            mosBoss1.setX((iWIDTH - mosBoss1.getAncho()) / 2) ;
+            mosBoss1.setY(-500);
+        }
     }
-    */
+    
     
     /** 
      * ProyectoFinal
@@ -403,21 +843,12 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         creador(); // Llama al metodo para crear los objetos
         llenaBotones(); // Llama al metodo para generar correctamente botones
         
-        manJugador1 = new ManoYMatamoscas(iHEIGHT, iWIDTH, 65, 105, iTipoJ1, 
-                iVelocidadJ1, iPowerJ1, 3, 0, 0, 0, false, 
+        manJugador1 = new ManoYMatamoscas(iWIDTH / 2, iHEIGHT * 2 / 3, 65, 105, 
+                iTipoJ1, iVelocidadJ1, iPowerJ1, 3, 0, 0, 0, false, 
                 Toolkit.getDefaultToolkit().getImage(urlImaManoYMatamoscas));
         
-        
-        for(int iI = 0; iI < 10; iI ++) {
-            Mosquito mosAux;
-            mosAux = new Mosquito(10 + iI * 10, 10 + iI * 10, 40, 40, 1, 0, 3, 1000, 10, false, 1,1,
-                    Toolkit.getDefaultToolkit().getImage(urlImaMosquito));
-            
-            lklMosquito.add(mosAux);
-        }
-        
-        mosBoss1 = new Mosquito(450, 100, 150, 200, 1, 0, 
-                3, 1000, 10, false, 1,1, Toolkit.getDefaultToolkit().getImage(urlImaBoss1));
+        manJugador1.setXY((iWIDTH - manJugador1.getAncho()) / 2, 
+                (iHEIGHT + manJugador1.getAlto()) / 2);
         
         // Eventos del mouse y teclado
         addMouseListener(this);
@@ -438,6 +869,7 @@ public final class ProyectoFinal extends JFrame implements Runnable,
      * 
      */
     public void run() {
+        
         repaint();
         try {
             Thread.sleep (3000); // El thread se duerme.
@@ -445,11 +877,14 @@ public final class ProyectoFinal extends JFrame implements Runnable,
             Logger.getLogger(ProyectoFinal.class.getName()).
                     log(Level.SEVERE, null, ex);
         }
+        
         // Calcula el tiepo para las animaciones
             lTiempoActual = System.currentTimeMillis();
         do {
+            System.out.println(iPantallaActual);
             // Actualiza las posiciones de los objetos en la pantalla
             actualiza(); 
+            System.out.println(iPantallaActual);
             
             // Revisa si existen coliciones entre objetos en la pantalla
             checaColision();
@@ -482,36 +917,95 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         lTiempoActual += lTiempoTranscurrido;
         //Actualizo las distintas animaciones en el juego en cuanto al tiempo
         aniBoss1.actualiza(lTiempoTranscurrido);
+        aniBossGolpe1.actualiza(lTiempoTranscurrido);
+        aniMoscaL.actualiza(lTiempoTranscurrido);
+        aniMoscaR.actualiza(lTiempoTranscurrido);
+        aniMoscaGolpeL.actualiza(lTiempoTranscurrido);
+        aniMoscaGolpeR.actualiza(lTiempoTranscurrido);
+        aniMosquitoR.actualiza(lTiempoTranscurrido);
+        aniMosquitoL.actualiza(lTiempoTranscurrido);
+        aniMosquitoGolpeR.actualiza(lTiempoTranscurrido);
+        aniMosquitoGolpeL.actualiza(lTiempoTranscurrido);
+        aniHormigaR.actualiza(lTiempoTranscurrido);
+        aniHormigaL.actualiza(lTiempoTranscurrido);
+        aniHormigaGolpeR.actualiza(lTiempoTranscurrido);
+        aniHormigaGolpeL.actualiza(lTiempoTranscurrido);
+        aniArana.actualiza(lTiempoTranscurrido);
+        aniAranaGolpe.actualiza(lTiempoTranscurrido);
+        aniMataMoscaReactL.actualiza(lTiempoTranscurrido);
+        aniMataMoscaReactR.actualiza(lTiempoTranscurrido);
+        // SI LA VARIABLE ENTERA ATACANDO ES MAYOR A 0 (LANZO OBJETOS)
+            // ENTONCES ACTUALIZAR ANIMACION ANIBOSSATTACK1
+        //aniBossAttack1.actualiza(lTiempoTranscurrido);
+            // SUMAR EL VALOR NUMERO A LA VARIABLE ENTER
+            // CHECAR SI LA SUMA ES MAYOR A LA SUMATOTAL DE TIEMPO DE LA ANIMAC
+            // SI LLEGA A SER ASI, REINICIALIZAR VARIABLE ENTERA DE BOSS A CERO
+            // Y APLICAR LA FUNCION PUBLICA INICIAR A ESTA MISMA ANIMACION
+        // SI LA VARIABLE ENTERA ATACANDO ES MAYOR A 0 (ATACANDO CON MATAMOSCAS)
+            // ENTONCES ACTUALIZAR ANIMACION ANIMATAMOSCAGOLPEL
+        //aniMataMoscaGolpeL.actualiza(lTiempoTranscurrido);
+            // HACER LAS MISMAS OPERACIONES CORRESPONDIENTES COMO CON EL ATAQUE
+            // DEL BOSS
         
-        if (iPantallaActual == 1) {
-            iPantallaActual = 2;
-        }
-        manJugador1.revisaTiempo();
-        manJugador1.mueve(iMouseX, iMouseY, iWIDTH, iHEIGHT + iHEIGHTEXTRA, 
-                false);
-        //stdOut.println(manJugador1.getFaltante());
+        if (iPantallaActual == 13 && bSoltadoMouse) {
+            bMMGolpeando = true;
+        } 
         
-        
-        if (!lklMosquito.isEmpty()) {
-            for (Mosquito lklEnemigo : lklMosquito) {
-                lklEnemigo.movimientoAleatorio(iWIDTH, iHEIGHT + iHEIGHTEXTRA);
+        // Si se golpeo a la mano
+        if (bMataMoscaAtacado) {
+            lTiempoMataMoscaFlash += lTiempoTranscurrido;
+            // Si el tiempo ya es mayor a la suma total de la
+            // animacion de este estado
+            if (lTiempoMataMoscaFlash > 
+                    aniMataMoscaReactR.getDuracionTotal()) {
+                // Se reinicializan los valores de tiempo y el booleano
+                bMataMoscaAtacado = false;
+                lTiempoMataMoscaFlash = 0;
             }
         }
         
-        mosBoss1.movimientoAleatorio(iWIDTH, iHEIGHT + iHEIGHTEXTRA);
+        // Si el matamoscas esta golpeando
+        if (bMMGolpeando) {
+            aniMataMoscaGolpeR.actualiza(lTiempoTranscurrido);
+            // Se lleva el control del tiempo que ha estado animandose el objeto
+            lTiempoMAtacando += lTiempoTranscurrido;
+            // Si el tiempo es mayor a la suma de tiempo de todos los cuadros
+            if (lTiempoMAtacando > aniMataMoscaGolpeR.getDuracionTotal()) {
+                // Ya no debe haber animacion
+                bMMGolpeando = false;
+                // Se reinicializa animacion
+                aniMataMoscaGolpeR.iniciar();
+                lTiempoMAtacando = 0;
+            }
+        }
         
+        // Cambio de pantalla inicial
+        if (iPantallaActual == 1) {
+            iPantallaActual = 2;
+        }
         
+        // Revisa interaccion de todos los botones para cambiar imagenes
         for(int iI = 0; iI < 66; iI ++) {
+            // Si intersecta con la posicion
             if (arrBotBoton[iI].intersecta(iMouseX, iMouseY)) {
+                // Si se esta presionando el mouse
                 if (bPresionadoMouse) {
                     arrBotBoton[iI].setImagen(Toolkit.getDefaultToolkit().
                             getImage(urlImaBotonB[iI]));
                 }
                 else if (bSoltadoMouse && iPantallaActual == 
                         arrBotBoton[iI].getPantallaActual()) {
+                    if (iPantallaActual == 14 && iI == 60) {
+                        inicializador();
+                        limpiador();
+                        
+                        // Regresa a la posicion
+                        manJugador1.setXY((iWIDTH - manJugador1.getAncho()) / 2,
+                                (iHEIGHT + manJugador1.getAlto()) / 2);
+                    }
                     iPantallaActual = arrBotBoton[iI].getPantallaApunta();
                     bSoltadoMouse = false;
-                    System.out.println(iI);
+                    //System.out.println(iI);
                 }
                 else {
                     arrBotBoton[iI].setImagen(Toolkit.getDefaultToolkit().
@@ -559,9 +1053,131 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         }
         
         
+        
+        
+        // Reinicializacion
+        if (iPantallaActual == 3) {
+            manJugador1.setXY((iWIDTH - manJugador1.getAncho()) / 2, 
+                (iHEIGHT + manJugador1.getAlto()) / 2); // Regresa a la posicion
+            inicializador();
+            limpiador();
+        }
+        
+        // Actualizaciones especificas de la pantalla de juego
+        if (iPantallaActual == 13) {
+            if (!bIniciaJuego) {
+            //System.out.println(manJugador1.getX() + " " + manJugador1.getY());
+                if (bSoltadoMouse) {
+                    
+                    bIniciaJuego = manJugador1.intersecta(iMouseX, iMouseY);
+                }
+            }
+            else {
+                if (!bPausa) {
+                    generadorMosquitos();
+                    // manJugador1.revisaTiempo();
+                    manJugador1.mueve(iMouseX, iMouseY, iWIDTH, iHEIGHT + 
+                            iHEIGHTEXTRA, false);
+                    //stdOut.println(manJugador1.getFaltante());
+
+                    // Actualizar el movimiento de los moquitos
+                    if (!lklMosquito.isEmpty()) {
+                        for (Mosquito lklEnemigo : lklMosquito) {
+                            lklEnemigo.movimientoMaestro(iWIDTH, iHEIGHT + 
+                                    iHEIGHTEXTRA);
+                        }
+                    }
+                    lTiempoEnPartida += 20;
+                    
+                    // Pelea con el boss
+                    if (bBossTime) { 
+                        if (mosBoss1.getVida() <= 0) {  // Matar al boss
+                            bTerminoNivel = true;
+                        }
+                        mosBoss1.movimientoMaestro(iWIDTH, iHEIGHT + 
+                                iHEIGHTEXTRA);
+                        // System.out.println(mosBoss1.iTiempoDeDisparo);
+                        
+                        // Para la animacion del disparo
+                        if (mosBoss1.iTiempoDeDisparo < 500) {
+                            bBGolpeando = true;
+                        }
+                        
+                        //  Revisar si esta golpeando
+                        if (bBGolpeando) {
+                            aniBossAttack1.actualiza(lTiempoTranscurrido);
+                            /* Se lleva el control del tiempo que ha estado 
+                                animandose el objeto */
+                            lTiempoBAtacando += lTiempoTranscurrido;
+                            /* Si el tiempo es mayor a la suma de tiempo de 
+                                todos los cuadros   */
+                            if (lTiempoBAtacando > 
+                                    aniBossAttack1.getDuracionTotal()) {
+                                // Ya no debe haber animacion
+                                bBGolpeando = false;
+                                // Se reinicializa animacion
+                                aniBossAttack1.iniciar();
+                                lTiempoBAtacando = 0;
+                            }
+                        }
+                        
+                        // Para lanzar los proyectiles
+                        if (mosBoss1.dispara() && lklProyectil.isEmpty()) {
+                            // Crea y lanza 8 proyectiles
+                            for (int iI = 1; iI < 9; iI ++) {
+                                Proyectil proAux = new Proyectil(mosBoss1.getX() 
+                                        + mosBoss1.getAncho() / 2,
+                                        mosBoss1.getY() + mosBoss1.getAlto() / 
+                                        2, 30, 60, iI,
+                                        Toolkit.getDefaultToolkit().
+                                        getImage(urlImaProyectil1));
+                                lklProyectil.add(proAux);
+                            }
+                        }
+                        // Si se golpeo a boss
+                        if (bBossAtacado) {
+                            lTiempoBossFlash += lTiempoTranscurrido;
+                            // Si el tiempo ya es mayor a la suma total de la
+                            // animacion de este estado
+                            if (lTiempoBossFlash > 
+                                    aniBossGolpe1.getDuracionTotal()) {
+                                bBossAtacado = false;
+                                lTiempoBossFlash = 0;
+                            }
+                        }
+                        
+                        // mueve los proyectiles
+                        if (! lklProyectil.isEmpty()) {
+                            int iI = 0; // Iterador
+                            for (Proyectil proP : lklProyectil) {
+                                proP.movimiento();
+                                if (proP.getX() < 0 || proP.getX() > iWIDTH ||
+                                        proP.getY() < 0 || proP.getY() > iHEIGHT 
+                                        + 40) {
+                                    lklProyectil.remove(iI);
+                                    iI --;
+                                    break;
+                                }
+                                iI ++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // En caso de perder
+        if (iPantallaActual == 13 && iVidasJ1 <= 0) {
+            iPantallaActual = 17;
+        }
+        
+        // Cambia a la pantalla para el siguiente nivel
+        if (bTerminoNivel) {
+            iPantallaActual = 15;
+        }
+        
         // Reinicializa las variables booleanas
         bClick = false;
-        bSoltadoMouse = false;
         bKeyRelEsq = false;
         bKeyRelEnter = false;
     }
@@ -574,7 +1190,72 @@ public final class ProyectoFinal extends JFrame implements Runnable,
      */
     public void checaColision() {
         // Revisa colision del jugador con las moscas
-        // manJugador1.colisionEnemigo(lklHormiga); 
+        int iAyudantePerdidaVidas = manJugador1.colisionEnemigo(lklMosquito);
+        while(iAyudantePerdidaVidas != -1){
+            iVidasJ1 --;
+            lklMosquito.remove(iAyudantePerdidaVidas);
+            iAyudantePerdidaVidas = manJugador1.colisionEnemigo(lklMosquito);
+            // Se prende el estado que indica que el jugador fue tocado por
+            // insecto
+            bMataMoscaAtacado = true;
+            lTiempoMataMoscaFlash = 0;
+        }
+        
+        // Revisa si le pego a alguna
+        if (bSoltadoMouse) {
+            iAyudantePerdidaVidas = manJugador1.golpea(lklMosquito);
+            
+            // Si le pegas a un mosquito
+            while(iAyudantePerdidaVidas != -1){
+                boolean bB;
+                if (lklMosquito.get(iAyudantePerdidaVidas).getDireccionX() > 0){
+                    bB = true;
+                }
+                else {
+                    bB = false;
+                }
+                /* Guardas sus valores en otra lkl para mostrar la animacion del
+                    mosquito golpeado */
+                lklMosquitoGolpeado.add(new Golpe(
+                        lklMosquito.get(iAyudantePerdidaVidas).getX(),
+                        lklMosquito.get(iAyudantePerdidaVidas).getY(), 30, bB));
+                iPuntosJ1 += 200;
+                iBugs --;
+                lklMosquito.remove(iAyudantePerdidaVidas);
+                iAyudantePerdidaVidas = manJugador1.golpea(lklMosquito);
+            }
+            
+            if (bBossTime) { // Inicia el boss
+                /* Creo una lkl para revisar si el boss colisiona con la mano
+                    mientras la mano golpea */
+                LinkedList<Mosquito> lklAux;
+                lklAux = new LinkedList();
+                lklAux.add(mosBoss1);
+                int iAuxIterador = manJugador1.golpeaEnemigo(lklAux);
+                if (iAuxIterador != -1) { // Si le pega y le quita vida al boss
+                    mosBoss1.setVida(mosBoss1.getVida() - 1);
+                    bBossAtacado = true;
+                    lTiempoBossFlash = 0;
+                }
+            }
+        }
+        
+        
+        
+        if (bBossTime) {    // Pelea contra el boss
+            // Si un proyectil le pega a la mano
+            int iAuxIterador = manJugador1.colisionEnemigo(lklProyectil);
+            while (iAuxIterador != -1) { // Pierde vidas y se borra el proyectil
+                iVidasJ1 --;
+                lklProyectil.remove(iAuxIterador);
+                iAuxIterador = manJugador1.colisionEnemigo(lklProyectil);
+                
+                // Se prende el estado que indica que el jugador fue tocado por
+                // insecto
+                bMataMoscaAtacado = true;
+                lTiempoMataMoscaFlash = 0;
+            }
+        }
     }
     
     
@@ -613,8 +1294,15 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                     log(Level.SEVERE, null, ex);
         }
         
-        // Set the blank cursor to the JFrame.
-        getContentPane().setCursor(curCursor);
+        if (iPantallaActual == 13 && bIniciaJuego) {
+            // Asigna la nueva imagen al cursor
+            getContentPane().setCursor(curCursorBlanco);
+        }
+        else {
+            // Asigna la nueva imagen al cursor
+            getContentPane().setCursor(curCursor);
+        }
+        
 
         // Dibuja la imagen actualizada
         graGrafico.drawImage (imaImagenApplet, 0, 0, this);
@@ -840,60 +1528,177 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 //graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
                 //        getImage(urlImaBlanco), 0, 0, 1000, 1000, this);
                 
-                URL urlImaLives = this.getClass().getResource("lives.png");
-                graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
-                        getImage(urlImaLives), 680, 25, 100, 50, this);
-                
+                for (int iI = 0; iI < iVidasJ1; iI ++) {
+                    graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
+                            getImage(urlImaLives), 755 - iI * 29, 28, 25, 50, 
+                            this);
+                }
                 // Se despliegan los puntos
                 graDibujo.setColor(Color.black);
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("SCORE: \t 0000", 15, 55);
+                graDibujo.drawString("SCORE: \t" + iPuntosJ1, 15, 55);
                 
                 // Se despliega cantidad de bichos
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("BUGS: \t 100", 15, 80);
+                graDibujo.drawString("BUGS: \t" + iBugs, 15, 80);
+                
+                // Conversion para el calculo del tiempo
+                String strAuxSegundos = (lTiempoEnPartida / 1000 % 60) + "";
+                if (strAuxSegundos.length() < 2) {
+                    strAuxSegundos = "0" + strAuxSegundos;
+                }
+                long lAuxiliarMinutos = lTiempoEnPartida / 60000;
                 
                 // Se despliega el tiempo
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("TIME: \t 05:00", 15, 105);
+                graDibujo.drawString("TIME: \t" + lAuxiliarMinutos + ":" + 
+                        strAuxSegundos, 15, 105);
                 
                 // Se despliega el modo de juego
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 32));
-                graDibujo.drawString("CLASIC MODE", 15, 520);
-                
-                manJugador1.paint(graDibujo, this); // Jugador 1
+                graDibujo.drawString("CLASIC MODE: LVL " + iNivel, 15, 520);
 
-                // Pinto cada bloque de la lista
-                if (!lklMosquito.isEmpty()) {
-                    for (Mosquito eneEnemigo : lklMosquito) {
-                        eneEnemigo.paint(graDibujo, this);
+                try {
+                    // Pinto cada mosquito de la lista
+                    if (!lklMosquito.isEmpty()) {
+                        for (Mosquito mosEnemigo : lklMosquito) {
+                            if (lklMosquito.isEmpty()) {
+                                break;
+                            }
+
+                            // Si el objeto se mueve a la derecha
+                            if (mosEnemigo.getDireccionX() > 0) {
+                                graDibujo.drawImage(aniMoscaR.getImagen(),
+                                mosEnemigo.getX(), mosEnemigo.getY(), 
+                                mosEnemigo.getAncho(), mosEnemigo.getAlto(), 
+                                this);
+                            }
+                            else {
+                                graDibujo.drawImage(aniMoscaL.getImagen(),
+                                mosEnemigo.getX(), mosEnemigo.getY(), 
+                                mosEnemigo.getAncho(), mosEnemigo.getAlto(), 
+                                this);
+                            }
+                        }
+                    }
+                }
+                catch (Exception excE) {
+                    
+                }
+                
+                try {
+                    // Pinto mosquitos golpeados de la lista
+                    if (!lklMosquitoGolpeado.isEmpty()) {
+                        int iI = 0; // Iterador
+                        for (Golpe golG : lklMosquitoGolpeado) {
+                            // Si el objeto se mueve a la derecha
+
+                            if (golG.bDireccion) {
+                                graDibujo.drawImage(aniMoscaGolpeR.getImagen(),
+                                golG.iPosX, golG.iPosY, mosAux.getAncho(), 
+                                mosAux.getAlto(), this);
+                            }
+                            else { // Se mueve a la izquierda
+                                graDibujo.drawImage(aniMoscaGolpeL.getImagen(),
+                                golG.iPosX, golG.iPosY, mosAux.getAncho(), 
+                                mosAux.getAlto(), this);
+                            }
+
+                            // Quitar la animacion del golpe
+                            if (golG.iPasadas == 0) {
+                                lklMosquitoGolpeado.remove(iI);
+                                break;
+                            }
+                            else {
+                                golG.iPasadas--;
+                            }
+
+                            iI ++;
+                        }
+                    }
+                }
+                catch (Exception excE) {
+                    
+                }
+                
+                if (bBossTime) {
+                    if (bBGolpeando) {
+                        //Pintan imagenes de animaciones con tamano de objeto
+                        graDibujo.drawImage(aniBossAttack1.getImagen(), 
+                            mosBoss1.getX() - 5, mosBoss1.getY() - 55,
+                            mosBoss1.getAncho() + 7, mosBoss1.getAlto() + 115, 
+                            this);
+                    }
+                    else if (bBossAtacado) {
+                        //Pintan imagenes de animaciones con tamano de objeto
+                        graDibujo.drawImage(aniBossGolpe1.getImagen(), 
+                            mosBoss1.getX(), mosBoss1.getY(),
+                            mosBoss1.getAncho(), mosBoss1.getAlto(), this);
+                    }
+                    else {
+                        //Se pintan las imagenes de animaciones
+                        graDibujo.drawImage(aniBoss1.getImagen(), 
+                                mosBoss1.getX(), mosBoss1.getY(), 
+                                mosBoss1.getAncho(), mosBoss1.getAlto(), this);
+                    }
+                    
+                    // Pintar los proyectiles
+                    if (! lklProyectil.isEmpty()) {
+                        for (Proyectil proP : lklProyectil) {
+                            proP.paint(graDibujo, this);
+                        }
                     }
                 }
                 
-                //mosBoss1.paint(graDibujo, this);
-                // Se pintan las imagenes de animaciones con tama;o de objeto
-                graDibujo.drawImage(aniBoss1.getImagen(), mosBoss1.getX(),
-                        mosBoss1.getY(), mosBoss1.getAncho(),
-                        mosBoss1.getAlto(), this);
+                // Pinta el anuncio de agarrar el matamoscas
+                if (! bIniciaJuego) {
+                    graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
+                            getImage(urlImaAnuncioInicio), 50, 120, 700, 125, 
+                            this);
+                }
+                
+                // Si el matamoscas fue tocado por insecto
+                if (bMataMoscaAtacado) {
+                    graDibujo.drawImage(aniMataMoscaReactR.getImagen(), 
+                        manJugador1.getX(), manJugador1.getY(),
+                        manJugador1.getAncho(), manJugador1.getAlto(), this);
+                }
+                // Si el matamoscas esta tratando de golpear
+                else if (bMMGolpeando) {
+                    graDibujo.drawImage(aniMataMoscaGolpeR.getImagen(), 
+                        manJugador1.getX(), manJugador1.getY(),
+                        manJugador1.getAncho(), manJugador1.getAlto(), this);
+                }
+                else {
+                    manJugador1.paint(graDibujo, this);
+                }
                 break;
             case 14: // Pantalla de Pausa
                 
                 // Se despliegan los puntos
                 graDibujo.setColor(Color.black);
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("SCORE: \t 0000", 15, 55);
+                graDibujo.drawString("SCORE: \t" + iPuntosJ1, 15, 55);
                 
                 // Se despliega los bichos
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("BUGS: \t 100", 15, 80);
+                graDibujo.drawString("BUGS: \t" + iBugs, 15, 80);
+                
+                // Conversion para el calculo del tiempo
+                String strAuxSegundos1 = (lTiempoEnPartida / 1000 % 60) + "";
+                if (strAuxSegundos1.length() < 2) {
+                    strAuxSegundos1 = "0" + strAuxSegundos1;
+                }
+                long lAuxiliarMinutos1 = lTiempoEnPartida / 60000;
                 
                 // Se despliega el tiempo
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("TIME: \t 05:00", 15, 105);
+                graDibujo.drawString("TIME: \t" + lAuxiliarMinutos1 + ":" + 
+                        strAuxSegundos1, 15, 105);
                 
                 // Se despliega el modo de juego
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 32));
-                graDibujo.drawString("CLASIC MODE", 15, 520);
+                graDibujo.drawString("CLASIC MODE: LVL " + iNivel, 15, 520);
                 
                 // Cuadro de pausa
                 graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().
@@ -911,19 +1716,19 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 // Se despliegan los puntos
                 graDibujo.setColor(Color.black);
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("SCORE: \t 0000", 15, 55);
+                graDibujo.drawString("SCORE: \t" + iPuntosJ1, 15, 55);
                 
                 // Se despliega los bichos
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("BUGS: \t 100", 15, 80);
+                graDibujo.drawString("BUGS: \t 130", 15, 80);
                 
                 // Se despliega el tiempo
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 23));
-                graDibujo.drawString("TIME: \t 05:00", 15, 105);
+                graDibujo.drawString("TIME: \t" , 15, 105);
                 
                 // Se despliega el modo de juego
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 32));
-                graDibujo.drawString("CLASIC MODE", 15, 520);
+                graDibujo.drawString("CLASIC MODE: LVL" + iNivel, 15, 520);
                 // Cuadro de pasa al siguiente nivel
                 graGraficaApplet.drawImage(Toolkit.getDefaultToolkit().getImage
                         (urlImaCuadroSigNivel), 255, 115, 290, 320, this);
@@ -942,7 +1747,7 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 // Se despliegan los puntos
                 graDibujo.setColor(Color.black);
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 35));
-                graDibujo.drawString("0000", 315, 270);
+                graDibujo.drawString(iPuntosJ1 + "", 315, 270);
                 
                 // Se despliega el tiempo
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 35));
@@ -963,16 +1768,28 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 // Se despliegan los puntos
                 graDibujo.setColor(Color.black);
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 35));
-                graDibujo.drawString("0000", 315, 270);
+                graDibujo.drawString(iPuntosJ1 + "", 315, 270);
+                
+                // Conversion para el calculo del tiempo
+                String strAuxSegundos2 = (lTiempoEnPartida / 1000 % 60) + "";
+                if (strAuxSegundos2.length() < 2) {
+                    strAuxSegundos2 = "0" + strAuxSegundos2;
+                }
+                long lAuxiliarMinutos2 = lTiempoEnPartida / 60000;
                 
                 // Se despliega el tiempo
                 graDibujo.setFont(new Font("Garamond", Font.BOLD, 35));
-                graDibujo.drawString("05:00", 510, 270);
+                graDibujo.drawString(lAuxiliarMinutos2 + ":" + 
+                        strAuxSegundos2, 510, 270);
                 
                 // Pinta los botones
                 for (int iI = 64; iI < 65; iI++) {
                     arrBotBoton[iI].paint(graDibujo, this);
                 }
+                
+                // Se pinta el valor del string de nombre
+                graDibujo.setFont(new Font("Garamond", Font.BOLD, 20));
+                graDibujo.drawString(strUserName, 254, 374);
                 
                 break;
             case 18: // Pantalla de Multijugador final de partida
@@ -997,6 +1814,7 @@ public final class ProyectoFinal extends JFrame implements Runnable,
                 
                 break;
         }
+        bSoltadoMouse = false;
     }
     
     /**
@@ -1018,6 +1836,29 @@ public final class ProyectoFinal extends JFrame implements Runnable,
         else if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER) {
             bKeyRelEnter = true;
         }
+        
+        
+        if (iPantallaActual == 17) {
+            // Si teclea el nombre en la pantalla de perdedor o ganador
+            if (keyEvent.getKeyCode() != KeyEvent.VK_CAPS_LOCK && 
+                    keyEvent.getKeyCode() != KeyEvent.VK_SHIFT) {
+                // Si no es una tecla de borrar
+                if (keyEvent.getKeyCode() != KeyEvent.VK_BACK_SPACE) {
+                    if (strUserName.length() < 25) {
+                        // Se agrega el caracter de la tecla al string sin pasar
+                        // 15 de longitud
+                        strUserName += keyEvent.getKeyChar();
+                    }
+                }
+                else {
+                    // Si es un backspace se borra el ultimo caracter del string
+                    if (strUserName.length() > 0) {
+                       strUserName = strUserName.substring(0,
+                               strUserName.length() - 1); 
+                    }
+                }
+            }
+        }
     }
     
     
@@ -1028,7 +1869,7 @@ public final class ProyectoFinal extends JFrame implements Runnable,
      * En este metodo maneja el evento que se genera al presionar una 
      * tecla que no es de accion.
      * 
-     * @param keyEvent es el <code>KeyEvent</code> que se genera en al presionar.
+     * @param keyEvent es el <code>KeyEvent</code> que se genera en al presionar
      * 
      */
     @Override

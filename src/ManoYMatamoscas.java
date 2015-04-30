@@ -13,6 +13,7 @@
  */
 
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.LinkedList;
 
 public class ManoYMatamoscas extends Base {
@@ -26,7 +27,7 @@ public class ManoYMatamoscas extends Base {
     private int iTiempo;
     private long lFaltante;
     private boolean bGolpeando;
-    private Mano manMano;
+    Mano manMano;
     private Matamoscas matMatamoscas;
     // *************************************************************************
     
@@ -69,11 +70,15 @@ public class ManoYMatamoscas extends Base {
         this.lFaltante = lFaltante;
         this.bGolpeando = bGolpeando;
         
-        Mano manM = new Mano(iX, iY, iAncho, iAlto);
-        Matamoscas matM = new Matamoscas(iX, iY, iAncho, iAlto);
+        Mano manM = new Mano(this.getX() + 10, this.getY() + this.getAlto() / 2,
+                iAncho - 40, iAlto / 2 + 10);
+        Matamoscas matM = new Matamoscas(iX, iY, iAncho, iAlto / 2 + 5);
         
         this.manMano = manM;
         this.matMatamoscas = matM;
+        
+        //System.out.println(this.manMano.getY() + " " + this.getY());
+        //System.out.println(this.manMano.getAlto() + " " + this.getAlto());
     }
     // *************************************************************************
     
@@ -301,21 +306,6 @@ public class ManoYMatamoscas extends Base {
     
     // ************************** METODOS **************************************
     /**
-     * revisaMovimiento
-     * 
-     * Metodo que checa si el objeto no se pasa de la medida
-     * 
-     * @param iMouse es el <code>integer</code> que tiene la posicion del mouse
-     * @param iMedida es el <code>integer</code> que tiene el tamano de medida
-     * 
-     * @return <code>boolean</code> que indica si se pasa de la medida o no
-     * 
-     */
-    public boolean revisaMovimiento(int iMouse, int iMedida) {
-        return iMouse + this.getAncho() < iMedida;
-    }
-    
-    /**
      * mueve
      * 
      * Metodo que modifica la posicion del objeto seg�n el mouse checando que no
@@ -333,16 +323,18 @@ public class ManoYMatamoscas extends Base {
         // si el juego no esta pausado
         if (!bPausa) {
             // revisa si posicion de objeto esta dentro de la ventana en anchura
-            if (revisaMovimiento(iMouseX, iAncho)) {
+            if (iMouseX > 0 && iMouseX + this.getAncho() < iAncho) {
                 // Se modifica la posicion de mouse y matamoscas en eje X
                 this.setX(iMouseX);
-                this.manMano.setX(iMouseX);
+                this.manMano.setX(iMouseX + 20);
+                this.matMatamoscas.setX(iMouseX);
             }
             // revisa si posicion de objeto esta dentro de la ventana en altura
-            if (revisaMovimiento(iMouseY, iAlto)) {
+            if (iMouseY > 0 && iMouseY + this.getAlto() < iAlto - 20) {
                 // Se modifica la posicion de mouse y matamoscas en eje Y
                 this.setY(iMouseY);
-                this.manMano.setY(iMouseY);
+                this.manMano.setY(iMouseY + this.manMano.getAlto());
+                this.matMatamoscas.setY(iMouseY - 10);
             }
         }
     }
@@ -358,9 +350,9 @@ public class ManoYMatamoscas extends Base {
         // Si todavia hay tiempo restante
         if (this.getFaltante() > 0) {
             // Se le resta uno al tiempo que queda
-            this.setFaltante(this.getFaltante() - 1);
+            this.setFaltante(this.getFaltante() - 20);
         } // Si ya no hay tiempo restante
-        else if (this.getFaltante() == 0) {
+        else if (this.getFaltante() <= 0) {
             // Se indica que el objeto no est� realizando un golpe
             this.setGolpeando(false);
         }
@@ -376,14 +368,18 @@ public class ManoYMatamoscas extends Base {
      *          enemigos
      * 
      */
-    public void golpea(LinkedList lklEnemigo) {
+    public int golpea(LinkedList lklEnemigo) {
         // Si el matamoscas esta golpeando
         if (!bGolpeando) {
             // se asigna tiempo de golpe y se a�ade enemigo a lista de golpeado
-            this.setFaltante(10);
+            this.setFaltante(0);
             this.setGolpeando(true);
-            golpeaEnemigo(lklEnemigo);
+            return golpeaEnemigo(lklEnemigo);
         }
+        else {
+            revisaTiempo();
+        }
+        return -1;
     }
     
     /**
@@ -396,19 +392,20 @@ public class ManoYMatamoscas extends Base {
      *          enemigos
      * 
      */
-    public boolean golpeaEnemigo(LinkedList lklEnemigo) {
+    public int golpeaEnemigo(LinkedList lklEnemigo) {
         // Si la lista de enemigos no est� vac�a
         if (!lklEnemigo.isEmpty()) {
+            int iI = 0; // Iterador
             for (Object eneEnemigo : lklEnemigo) {
                 // Si el matamoscas intersecta con el enemigo
                 if (matMatamoscas.intersectaEnemigo(eneEnemigo)) {
-                    System.out.println("Pase3");
-                    return true;
+                    return iI;
                 }
+                iI ++;
             }
         }
         // Si no intersecto con ning�n objeto de la lista
-        return false;
+        return -1;
     }
     
     /**
@@ -421,18 +418,46 @@ public class ManoYMatamoscas extends Base {
      *          enemigos
      * 
      */
-    public boolean colisionEnemigo(LinkedList lklEnemigo) {
+    public int colisionEnemigo(LinkedList lklEnemigo) {
         // Si la lista de enemigos no est� vac�a
         if (!lklEnemigo.isEmpty()) {
+            int iI = 0; // Iterador
             for (Object eneEnemigo : lklEnemigo) {
                 // Si la mano intersecta con el enemigo
-                if (manMano.intersectaEnemigo(eneEnemigo)) {
-                    System.out.println("Pase4");
-                    return true;
+                if (this.manMano.intersectaEnemigo(eneEnemigo)) {
+                    //System.out.println("Pase4");
+                    return iI;
                 }
+                //System.out.println(" ");
+                iI ++;
             }
         }
         // Si no intersecto con ning�n objeto de la lista
+        return -1;
+    }
+    
+    /**
+     * intersecta
+     * 
+     * Metodo que checa si la manoYMatamoscas intersecta con una coordenada
+     * 
+     * @param iX es la <code>X</code> que se quiere checar.
+     * @param iY es la <code>Y</code> que se quiere checar.
+     * 
+     * @return <code>boolean</code> 
+     * 
+     */
+    public boolean intersecta(int iX, int iY) {
+        // se crea los rectangulos de ambos
+        Rectangle rctEste = new Rectangle(this.getX(), this.getY(),
+                this.getAncho(), this.getAlto());
+        
+        Rectangle rctParam = new Rectangle(iX, iY, 1, 1); 
+
+        // revisa si existe colision
+        if (rctEste.intersects(rctParam)) {
+            return true;
+        } // si no hay colision
         return false;
     }
     // *************************************************************************

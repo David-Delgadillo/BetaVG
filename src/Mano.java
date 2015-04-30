@@ -61,7 +61,6 @@ public class Mano extends Base {
 
         // revisa si existe colision
         if (rctEste.intersects(rctParam)) {
-            System.out.println("Pase2");
             return true;
         } // si no hay colision
         return false;

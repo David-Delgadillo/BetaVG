@@ -32,16 +32,14 @@ public class Hormiga extends BaseEnemigo {
      * @param iFrecuencia es la <code>Frecuencia</code> del objeto.
      * @param iEntrada es la <code>Entrada</code> del objeto.
      * @param bSale es la <code>Salida</code> del objeto.
-     * @param iDireccionX es la <code>Direccion X</code> del objeto.
-     * @param iDireccionY es la <code>Direccion Y</code> del objeto.
      * @param imaImagen es la <code>imagen</code> del objeto.
      * 
      */
     public Hormiga(int iX, int iY , int iAncho, int iAlto, int iVida,
             int iTiempo, int iVelocidad, int iFrecuencia, int iEntrada, 
-            boolean bSale, int iDireccionX, int iDireccionY, Image imaImagen) {
+            boolean bSale, Image imaImagen) {
         super(iX, iY, iAncho, iAlto, iVida, iTiempo, iVelocidad, iFrecuencia, 
-                iEntrada, bSale, iDireccionX, iDireccionY, imaImagen);
+                iEntrada, bSale, imaImagen);
     }
     // *************************************************************************
     
@@ -49,9 +47,6 @@ public class Hormiga extends BaseEnemigo {
     
     
     
-    // ************************** METODOS **************************************
-    public void movimiento() {
-
-    }
+    // ************************** METODOS *************************************
     // *************************************************************************
 }
