@@ -70,8 +70,8 @@ public class ManoYMatamoscas extends Base {
         this.lFaltante = lFaltante;
         this.bGolpeando = bGolpeando;
         
-        Mano manM = new Mano(this.getX() + 10, this.getY() + this.getAlto() / 2,
-                iAncho - 40, iAlto / 2 + 10);
+        Mano manM = new Mano(this.getX() + 12, this.getY() + this.getAlto() / 2 
+                + 4, iAncho - 36, iAlto / 2 + 2);
         Matamoscas matM = new Matamoscas(iX, iY, iAncho, iAlto / 2 + 5);
         
         this.manMano = manM;

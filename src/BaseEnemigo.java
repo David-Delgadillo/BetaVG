@@ -770,5 +770,21 @@ public class BaseEnemigo extends Base {
         this.setCambioMovimiento(this.getCambioMovimiento() - 1);
         this.setTiempo(this.getTiempo() + 20); // Actualiza el tiempo
     }
+    
+    
+    /*
+     * revisaDentroPantalla
+     * 
+     * Revisa que el objeto este dentro de la pantalla
+     * 
+     * @param iW es el <code>Ancho</code> del objeto.
+     * @param iH es el <code>Alto</code> del objeto.
+     * 
+     * @return posicion <code>boolean</code> dentro de la pantalla o no
+     */
+    public boolean revisaDentroPantalla(int iW, int iH) {
+        return (this.getX() < 5 || this.getX() > iW || this.getY() < 25 || 
+                this.getY() > iH + 15) && this.getMovimientoActual() != 0;
+    }
     // *************************************************************************
 }

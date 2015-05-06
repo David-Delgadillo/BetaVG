@@ -20,8 +20,10 @@ public class Base {
     // *************************** ATRIBUTOS ***********************************
     private int iX;     //posicion en x.       
     private int iY;     //posicion en y.
-    private int iVelncho; //ancho del objeto
-    private int iVellto; //largo del objeto
+    private int iCentroObjX;   //posicion en el centro de x
+    private int iCentroObjY;   //posicion en el centro de y
+    private int iAncho; //ancho del objeto
+    private int iAlto; //largo del objeto
     private Image imaImagen;	//imagen.
     // *************************************************************************
     
@@ -38,17 +40,18 @@ public class Base {
      * 
      * @param iX es la <code>posicion en x</code> del objeto.
      * @param iY es la <code>posicion en y</code> del objeto.
-     * @param iVelncho es el <code>ancho</code> del objeto.
-     * @param iVellto es el <code>Largo</code> del objeto.
+     * @param iAncho es el <code>ancho</code> del objeto.
+     * @param iAlto es el <code>Largo</code> del objeto.
      * @param imaImagen es la <code>imagen</code> del objeto.
      * 
      */
-    public Base(int iX, int iY , int iVelncho, int iVellto, Image imaImagen) {
+    public Base(int iX, int iY , int iAncho, int iAlto, Image imaImagen) {
         this.iX = iX;
         this.iY = iY;
-        this.iVelncho = iVelncho;
-        this.iVellto = iVellto;
+        this.iAncho = iAncho;
+        this.iAlto = iAlto;
         this.imaImagen = imaImagen;
+        modificaCentro();
     }
     
     
@@ -60,16 +63,17 @@ public class Base {
      * 
      * @param iX es la <code>posicion en x</code> del objeto.
      * @param iY es la <code>posicion en y</code> del objeto.
-     * @param iVelncho es el <code>ancho</code> del objeto.
-     * @param iVellto es el <code>Largo</code> del objeto.
+     * @param iAncho es el <code>ancho</code> del objeto.
+     * @param iAlto es el <code>Largo</code> del objeto.
      * 
      */
-    public Base(int iX, int iY , int iVelncho, int iVellto) {
+    public Base(int iX, int iY , int iAncho, int iAlto) {
         this.iX = iX;
         this.iY = iY;
-        this.iVelncho = iVelncho;
-        this.iVellto = iVellto;
+        this.iAncho = iAncho;
+        this.iAlto = iAlto;
         this.imaImagen = null;
+        modificaCentro();
     }
     // *************************************************************************
     
@@ -113,7 +117,7 @@ public class Base {
      * 
      */
     public int getAncho() {
-        return iVelncho;
+        return iAncho;
     }
     
     
@@ -126,7 +130,33 @@ public class Base {
      * 
      */
     public int getAlto() {
-        return iVellto;
+        return iAlto;
+    }
+    
+    
+    /**
+     * getCentroX
+     * 
+     * Metodo que da el Centro X del objeto 
+     * 
+     * @return un <code>entero</code> que es el centro en x de la imagen.
+     * 
+     */
+    public int getCentroObjX() {
+        return this.iCentroObjX;
+    }
+    
+    
+    /**
+     * getCentroY
+     * 
+     * Metodo que da el Centro Y del objeto 
+     * 
+     * @return un <code>entero</code> que es el centro en y de la imagen.
+     * 
+     */
+    public int getCentroObjY() {
+        return this.iCentroObjY;
     }
     
     
@@ -158,6 +188,7 @@ public class Base {
      */
     public void setX(int iX) {
         this.iX = iX;
+        modificaCentro();
     }
     
     
@@ -171,6 +202,7 @@ public class Base {
      */
     public void setY(int iY) {
         this.iY = iY;
+        modificaCentro();
     }
     
     
@@ -186,6 +218,22 @@ public class Base {
     public void setXY(int iX, int iY) {
         this.iX = iX;
         this.iY = iY;
+        modificaCentro();
+    }
+    
+    
+    /**
+     * setCentroXY
+     * 
+     * Metodo modificador usado para cambiar el centro en x, y del objeto 
+     * 
+     * @param iCentroObjX es el <code>centro en x</code> del objeto.
+     * @param iCentroObjY es el <code>centro en y</code> del objeto.
+     * 
+     */
+    public void setCentroObjXY(int iCentroObjX, int iCentroObjY) {
+        this.iCentroObjX = iCentroObjX;
+        this.iCentroObjY = iCentroObjY;
     }
     
     
@@ -201,12 +249,7 @@ public class Base {
     public void setImagen(Image imaImagen) {
         this.imaImagen = imaImagen;
     }
-    // *************************************************************************
-    
-    
-    
-    
-    
+    // *************************************************************************    
     
     
 
@@ -226,6 +269,18 @@ public class Base {
     public void paint(Graphics graGrafico, ImageObserver imoObserver) {
         graGrafico.drawImage(getImagen(), getX(), getY(), getAncho(), getAlto(), 
                 imoObserver);
+    }
+    
+    
+    /**
+     * modificaCentro
+     * 
+     * Metodo para modificar el centro del objeto
+     * 
+     */
+    public void modificaCentro() {
+        this.setCentroObjXY(this.getX() + this.getAncho() / 2,
+                this.getY() + this.getAlto() / 2);
     }
     // *************************************************************************
 }

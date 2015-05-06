@@ -9,7 +9,7 @@
  * @author Jose Gonzalez    A01280106
  * 
  * @version 2.1
- * @date 29/ Abril/ 2015
+ * @date 4/ Mayo/ 2015
  */
 
 import java.awt.Image;
